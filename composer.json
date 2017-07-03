@@ -1,0 +1,15 @@
+{
+    "name": "cwhittl/auth0_simple_wp_login",
+    "description": "Plugin using the wordpress' authentication flow to communicate with auth0 instead of overriding it.",
+    "type": "project",
+    "require": {
+        "auth0/auth0-php": "^5.0"
+    },
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Whitt",
+            "email": "cwhittl@gmail.com"
+        }
+    ]
+}
