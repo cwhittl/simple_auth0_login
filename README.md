@@ -1,6 +1,5 @@
-# simple_auth0_login
+# Simple Auth0 Login
 ## Wordpress Auth0 Plugin alternative
-
 
 This is a work in progress, it's in response to the needs that the official plugin wasn't meeting for us.
 
