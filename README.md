@@ -5,9 +5,10 @@ This is a work in progress, it's in response to the needs that the official plug
 
 - WORKING
   - Overrides Authentication and creates users from Auth0
+  - Settings to enter API Key
 
-- NOT WORKING / UNTESTED
+- NOT IMPLEMENTED / UNTESTED
   - Full password reset
   - Signup
-  - Settings to enter API Key
   - Validated the action used in the original plugin works
+  - Add Single SignOut

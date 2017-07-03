@@ -14,21 +14,25 @@ Version: 0.1
 class SimpleAuth0Login
 {
 
-    private $realm = null;
+    private $connection = null;
     private $domain = null;
     private $client_id = null;
     private $client_secret = null;
-    private $audience = null;
     private $scope = null;
 
     function __construct()
     {
-        $this->domain = "";
-        $this->realm = "";
-        $this->client_id = '';
-        $this->client_secret = "";
-        $this->audience = '';
+        $this->domain_name = "auth0_domain";
+        $this->domain = get_option($this->domain_name);
+        $this->connection_name = "connection";
+        $this->connection = get_option($this->connection_name);
+        $this->client_id_name = "client_id";
+        $this->client_id = get_option($this->client_id_name);
+        $this->client_secret_name = "client_secret";
+        $this->client_secret = get_option($this->client_secret_name);
         $this->scope="openid profile email";
+
+        add_action('admin_menu', array($this,'create_admin_menu'));
 
         add_action(
             'plugins_loaded', function () {
@@ -51,7 +55,7 @@ class SimpleAuth0Login
     {
         //die('got here');
         $authentication = $this->createAuthentication();
-        $test = $authentication->dbconnections_change_password($user_email, $this->realm);
+        $test = $authentication->dbconnections_change_password($user_email, $this->connection);
         add_filter(
             'allow_password_reset', function ($allow, $user_id) {
                 return new WP_Error('no_password_reset', __(json_encode($test)));
@@ -74,7 +78,7 @@ class SimpleAuth0Login
         if (!empty($user_email) && is_email($user_email) ) {
             $authentication = $this->createAuthentication();
             if($user_email) {
-                $options = array("username"=>$user_email,"password"=>$password,"realm"=>$this->realm,"scope"=>$this->scope);
+                $options = array("username"=>$user_email,"password"=>$password,"realm"=>$this->connection,"scope"=>$this->scope);
                 $result = (object) $authentication->login($options);
                 //echo json_encode($result);
                 if(isset($result->error)) {
@@ -154,6 +158,50 @@ class SimpleAuth0Login
             ['http_errors' => false]
         );
     }
+
+    function create_admin_menu()
+    {
+            add_menu_page('Simple Auth0 Login', 'Simple Auth0 Login', 'administrator', "simple_auth0_login",  array($this,'admin_settings_page'),  "dashicons-lock");
+            add_action('admin_init', array($this,'register_admin_settings'));
+    }
+    function register_admin_settings()
+    {
+        register_setting('simple-auth0-login-settings-group', $this->client_id_name);
+        register_setting('simple-auth0-login-settings-group', $this->client_secret_name);
+        register_setting('simple-auth0-login-settings-group', $this->connection_name);
+        register_setting('simple-auth0-login-settings-group', $this->domain_name);
+    }
+    function admin_settings_page()
+    {
+        ?>
+      <div class="wrap">
+        <h1>Auth0 Simple Login Settings</h1>
+
+        <form method="post" action="options.php">
+        <?php settings_fields('simple-auth0-login-settings-group'); ?>
+        <?php do_settings_sections('simple-auth0-login-settings-group'); ?>
+      <table class="form-table">
+          <tr valign="top">
+          <th scope="row">Auth0 Domain</th>
+          <td><input type="text" name="<?php echo $this->domain_name; ?>" value="<?php echo esc_attr(get_option($this->domain_name)); ?>" /></td>
+          </tr>
+          <tr valign="top">
+          <th scope="row">Auth0 Connection Name</th>
+          <td><input type="text" name="<?php echo $this->connection_name; ?>" value="<?php echo esc_attr(get_option($this->connection_name)); ?>" /></td>
+          </tr>
+          <tr valign="top">
+          <th scope="row">Auth0 Client ID</th>
+          <td><input type="text" name="<?php echo $this->client_id_name; ?>" value="<?php echo esc_attr(get_option($this->client_id_name)); ?>" /></td>
+          </tr>
+          <tr valign="top">
+          <th scope="row">Auth0 Client Secret</th>
+          <td><input type="password" name="<?php echo $this->client_secret_name; ?>" value="<?php echo esc_attr(get_option($this->client_secret_name)); ?>" /></td>
+          </tr>
+      </table>
+        <?php submit_button(); ?>
+      </form>
+        </div>
+    <?php }
 
 }
 new SimpleAuth0Login();
