@@ -8,7 +8,7 @@ document.addEventListener("DOMContentLoaded", function(event){
 
     user_login.setAttribute('type', 'email');
 
-    nav_link.className = "jsModalTrigger";
+    nav_link.className = "modal_trigger";
     // nav_link.dataset.toggle = 'modal';
     // nav_link.dataset.target = 'lostPassword';
     nav_link.addEventListener('click', function(e) {

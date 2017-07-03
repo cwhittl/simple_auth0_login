@@ -1,5 +1,7 @@
 <?php
 require 'vendor/autoload.php';
+require 'includes/LostPasswordOverride.php';
+
 use Auth0\SDK\API\Authentication;
 use Firebase\JWT\JWT;
 /*
@@ -22,6 +24,7 @@ class SimpleAuth0Login
 
     function __construct()
     {
+        new LostPasswordOverride();
         $this->domain_name = "auth0_domain";
         $this->domain = get_option($this->domain_name);
         $this->connection_name = "connection";
@@ -40,16 +43,14 @@ class SimpleAuth0Login
                 add_filter('authenticate', array( $this, 'authenticate'), 20, 3);
             }
         );
-        add_filter('lostpassword_url', array( $this, 'override_password_reset'), 10, 2);
+
+
 
         $this->fixLoginForms();
     }
 
 
-    function override_password_reset( $lostpassword_url, $redirect )
-    {
-        return wp_login_url() . "#jsModal";
-    }
+
 
     function reset_password( $user_email )
     {
@@ -121,23 +122,7 @@ class SimpleAuth0Login
                 wp_enqueue_style('simple-auth0-login-modal',  plugins_url('lib/modal/modal.css', __FILE__));
             }, 10
         );
-        add_filter(
-            'login_footer', function () {
-            ?>
-            <div id="jsModal" class="modal">
-              <div class="modal__overlay jsOverlay"></div>
-              <div id="lostPassword" class="modal__container">
-                <form action="#">
-                  <h3>Need a new password?</h3>
-                  <input required type="email" width="100%" class="input" id="possible_email" placeholder="Enter your password here"/>
-                  <input type="submit" id="send_password" class="button button-primary button-large" value="Send new password"/>
-                </form>
-                <button class="modal__close jsModalClose">&#10005;</button>
-              </div>
-            </div>
-            <?php
-            }
-        );
+
 
     }
 
