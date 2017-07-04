@@ -8,6 +8,49 @@ class LostPasswordOverride
     {
         add_filter('lostpassword_url', array( $this, 'override_password_reset'), 10, 2);
         add_action('init', array($this,'redirect_lost_password_page'));
+        add_action(
+            'login_enqueue_scripts', function () {
+                wp_enqueue_script('simple-auth0-login-modal',  plugins_url('lib/modal/modal.js', dirname(__FILE__)));
+                wp_enqueue_style('simple-auth0-login-modal',  plugins_url('lib/modal/modal.css', dirname(__FILE__)));
+                ?>
+                <script>
+                document.addEventListener("DOMContentLoaded", function(event){
+                    var user_login = document.getElementById("user_login")
+                    var nav_link = document.getElementById("nav").getElementsByTagName("A")[0]
+                    var password_reset_form = document.getElementById("lostPassword").getElementsByTagName("form")[0]
+                    var possible_email = document.getElementById("possible_email")
+                    var send_password = document.getElementById("send_password")
+
+
+                    user_login.setAttribute('type', 'email');
+
+                    nav_link.className = "modal_trigger";
+                    nav_link.addEventListener('click', function(e) {
+                      possible_email.value = user_login.value
+                    });
+
+                    send_password.addEventListener('click', function(e) {
+                      e.preventDefault();
+                      if (password_reset_form.checkValidity()) {
+                      //  form.submit();
+                        alert("go!");
+                      }else{
+                        //TODO validation
+                      }
+                    });
+                });
+                </script>
+                <style>
+                #lostPassword #possible_email {
+                  font-size: 24px;
+                  width: 100%;
+                  padding: 3px;
+                  margin: 2px 6px 16px 0;
+                }
+                </style>
+                <?php
+            }, 10
+        );
         add_filter(
             'login_footer', function () {
             ?>
