@@ -1,9 +1,9 @@
 <?php
 require 'vendor/autoload.php';
 require 'lib/Auth0Service.php';
-require 'includes/PasswordManagementOverride.php';
-require 'includes/AuthenticationOverride.php';
-require 'includes/RegistrationOverride.php';
+require 'lib/PasswordManagementOverride.php';
+require 'lib/AuthenticationOverride.php';
+require 'lib/RegistrationOverride.php';
 
 /*
 Plugin Name: SimpleAuth0Login
@@ -13,7 +13,6 @@ Version: 0.1
 */
 
 //TODO Need to check if user exists when user tries to reset password, if user doesn't exist and sign up is enabled can you send them to sign up?
-//TODO after_password_reset
 //TODO email and profile change?
 class SimpleAuth0Login
 {
@@ -42,15 +41,15 @@ class SimpleAuth0Login
 
     function enqueue_scripts()
     {
-        wp_enqueue_script('simple-auth0-promise-polyfill',  plugins_url('lib/polyfills/promise.min.js', __FILE__));
-        wp_enqueue_script('simple-auth0-fetch-polyfill',  plugins_url('lib/polyfills/fetch.js', __FILE__));
-        wp_enqueue_script('simple-auth0-shared',  plugins_url('lib/SimpleAuth0LoginShared.js', __FILE__));
+        wp_enqueue_script('simple-auth0-promise-polyfill',  plugins_url('includes/polyfills/promise.min.js', __FILE__));
+        wp_enqueue_script('simple-auth0-fetch-polyfill',  plugins_url('includes/polyfills/fetch.js', __FILE__));
+        wp_enqueue_script('simple-auth0-shared',  plugins_url('includes/SimpleAuth0LoginShared.js', __FILE__));
     }
 
     function init_shared_javascript()
     {
         ob_start();
-        include "includes/views/shared.php";
+        include "lib/views/shared.php";
         echo ob_get_clean();
     }
 
