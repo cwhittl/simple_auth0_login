@@ -22,20 +22,7 @@ class Auth0Service
         $this->connection = get_option($this->connection_name);
         $this->client_id = get_option($this->client_id_name);
         $this->client_secret = get_option($this->client_secret_name);
-        $this->scope="openid profile email";
-    }
-
-    public function reset_password( $user_email )
-    {
-        //die('got here');
-        $authentication = $this->createAuthentication();
-        $test = $authentication->dbconnections_change_password($user_email, $this->connection);
-        add_filter(
-            'allow_password_reset', function ($allow, $user_id) {
-                return new WP_Error('no_password_reset', __(json_encode($test)));
-            }, 99, 2
-        );
-        return true;
+        $this->scope="openid profile email email_verified";
     }
 
     private function createAuthentication()
@@ -44,9 +31,46 @@ class Auth0Service
             $this->domain,
             $this->client_id,
             $this->client_secret,
+            null,
             $this->scope,
             ['http_errors' => false]
         );
+    }
+
+    public function request_new_password( $user_email )
+    {
+        $authentication = $this->createAuthentication();
+        $response = $authentication->dbconnections_change_password($user_email, $this->connection);
+        add_filter(
+            'allow_password_reset', function ($allow, $user_id) {
+                return new WP_Error('no_password_reset', __(json_encode($response)));
+            }, 99, 2
+        );
+        return true;
+    }
+
+    public function getUserIDFromAuth0ID($auth0_id)
+    {
+        global $wpdb;
+        $user_id_object = $wpdb->get_results(
+            $wpdb->prepare(
+                "SELECT user_id FROM $wpdb->usermeta WHERE meta_key = %s AND meta_value = %s",
+                $wpdb->prefix.'auth0_id', $auth0_id
+            )
+        );
+        return count($user_id_object) === 1 ? $user_id_object[0]->user_id : null;
+    }
+
+    public function signup( $user_email, $password )
+    {
+        $authentication = $this->createAuthentication();
+        $response = $authentication->dbconnections_signup($user_email, $password, $this->connection);
+        add_filter(
+            'allow_password_reset', function ($allow, $user_id) {
+                return new WP_Error('no_password_reset', __(json_encode($response)));
+            }, 99, 2
+        );
+        return true;
     }
 
     public function authenticate( $user, $user_email, $password )
@@ -60,33 +84,59 @@ class Auth0Service
             }
             return false;
         }
+
         if (!empty($user_email) && is_email($user_email) ) {
             $authentication = $this->createAuthentication();
             if($user_email) {
                 $options = array("username"=>$user_email,"password"=>$password,"realm"=>$this->connection,"scope"=>$this->scope);
-                $result = (object) $authentication->login($options);
-                //echo json_encode($result);
-                if(isset($result->error)) {
+                $result = null;
+                try {
+                    $result = (object) $authentication->login($options);
+                } catch (Exception $e) {
+                    error_log($e->getMessage());
+                }
+
+                if(!$result) {
+                    $error = new WP_Error();
+                    $error->add("unknown", __("<strong>ERROR</strong>: I'm sorry there was an unknown error, please try again and if it continues, please contact support@zweiggroup.com.  Thank you"));
+                    return $error;
+                }else if(isset($result->error)) {
                     $error = new WP_Error();
                     $error->add($result->error, __('<strong>ERROR</strong>: ' . $result->error_description));
                     return $error;
                 }else{
-                    $user_profile = JWT::decode($result->id_token, $this->client_secret, array('HS256', 'RS256'));
-                    $is_new = false;
-                    $user = get_user_by('email', $user_email);
-                    if(!$user) {
-                        $is_new = true;
-                        $user_id = wp_create_user($user_email, $password, $user_email);
-                        $user = get_user_by('ID', $user_id);
-                    }else{
-                        $user_id = $user->user_email;
+                    try {
+                        $user_profile = JWT::decode($result->id_token, $this->client_secret, array('HS256', 'RS256'));
+                        if(!$user_profile->email_verified) {
+                            $error = new WP_Error();
+                            $error->add("not_validation", __('<strong>ERROR</strong>: Check your inbox for an verfication email, once verfied you can login.'));
+                            return $error;
+                        }
+                        $is_new = false;
+                        $user = get_user_by('email', $user_email);
+                        if($user) {
+                            $user_id = $user->ID;
+                        }else{
+                            $user_id = $this->getUserIDFromAuth0ID($user_profile->sub);
+                            if(!$user_id) {
+                                $is_new = true;
+                                $user_id = wp_create_user($user_email, $password, $user_email);
+                            }
+                        }
+
+                        wp_update_user(array( 'ID' => $user_id, 'display_name' => $user_profile->nickname, "user_email" => $user_profile->email));
+                        wp_set_password($password, $user_id);
+                        do_action('auth0_user_login', $user_id, $user_profile, $is_new, $result->id_token, $result->access_token);
+                        return $user;
+                    } catch (Exception $e) {
+                        error_log($e->getMessage());
+                        $error = new WP_Error();
+                        $error->add("unknown", __("<strong>ERROR</strong>: I'm sorry there was an unknown error, please try again and if it continues, please contact support@zweiggroup.com.  Thank you"));
+                        return $error;
                     }
-                    wp_set_password($password, $user_id);
-                    do_action('auth0_user_login', $user_id, $user_profile, $is_new, $result->id_token, $result->access_token);
-                    //TODO validate above works
-                    return $user;
                 }
-                die(json_encode($test));
+                //Should never get here but if it does....
+                return false;
             }
         }
         if (!empty($user_email) || !empty($password) ) {

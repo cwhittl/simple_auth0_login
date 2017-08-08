@@ -11,6 +11,7 @@ class AuthenticationOverride
         add_action(
             'plugins_loaded', function () {
                 remove_filter('authenticate', 'wp_authenticate_username_password', 20, 3);
+                remove_filter('authenticate', 'wp_authenticate_email_password', 20, 3);
                 add_filter('authenticate', array( $this, 'authenticate'), 20, 3);
             }
         );
