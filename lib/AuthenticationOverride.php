@@ -12,14 +12,13 @@ class AuthenticationOverride
             'plugins_loaded', function () {
                 remove_filter('authenticate', 'wp_authenticate_username_password', 20, 3);
                 remove_filter('authenticate', 'wp_authenticate_email_password', 20, 3);
-                add_filter('authenticate', array( $this, 'authenticate'), 20, 3);
+                add_filter(
+                    'authenticate', function ( $user, $user_email, $password ) {
+                        return $this->auth0_service->authenticate($user, $user_email, $password);
+                    }, 20, 3
+                );
             }
         );
-    }
-
-    public function authenticate( $user, $user_email, $password )
-    {
-        return $this->auth0_service->authenticate($user, $user_email, $password);
     }
 }
     ?>

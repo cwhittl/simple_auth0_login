@@ -15,11 +15,11 @@ password_reset.addEventListener('click', function(e) {
         alert("A password request has been sent to your email.");
       }else{
         console.log(data);
-        alert("There was an unknown error, please contact support@zweiggroup.com if this continues");
+        alert("There was an unknown error, please contact <?php echo $support_email; ?> if this continues");
       }
     },function(data){
       console.log(data);
-      alert("There was an unknown error, please contact support@zweiggroup.com if this continues");
+      alert("There was an unknown error, please contact <?php echo $support_email; ?> if this continues");
     });
 });
 </script>

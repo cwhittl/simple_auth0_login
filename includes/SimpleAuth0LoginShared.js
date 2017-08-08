@@ -1,6 +1,7 @@
 class SimpleAuth0LoginShared {
-  constructor(ajax_url) {
+  constructor(ajax_url, support_email) {
     this.ajax_url = ajax_url;
+    this.support_email = support_email;
   }
 
   params (obj) {

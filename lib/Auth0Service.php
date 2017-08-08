@@ -15,6 +15,8 @@ class Auth0Service
     public $client_secret_name = "client_secret";
     public $client_secret = null;
     public $scope = null;
+    public $support_email_name = "simple_auth0_support_email";
+    public $support_email = "support";
 
     function __construct()
     {
@@ -22,6 +24,7 @@ class Auth0Service
         $this->connection = get_option($this->connection_name);
         $this->client_id = get_option($this->client_id_name);
         $this->client_secret = get_option($this->client_secret_name);
+        $this->support_email = get_option($this->support_email_name);
         $this->scope="openid profile email email_verified";
     }
 
@@ -98,7 +101,7 @@ class Auth0Service
 
                 if(!$result) {
                     $error = new WP_Error();
-                    $error->add("unknown", __("<strong>ERROR</strong>: I'm sorry there was an unknown error, please try again and if it continues, please contact support@zweiggroup.com.  Thank you"));
+                    $error->add("unknown", __("<strong>ERROR</strong>: I'm sorry there was an unknown error, please try again and if it continues, please contact ".$this->support_email.".  Thank you"));
                     return $error;
                 }else if(isset($result->error)) {
                     $error = new WP_Error();
@@ -131,7 +134,7 @@ class Auth0Service
                     } catch (Exception $e) {
                         error_log($e->getMessage());
                         $error = new WP_Error();
-                        $error->add("unknown", __("<strong>ERROR</strong>: I'm sorry there was an unknown error, please try again and if it continues, please contact support@zweiggroup.com.  Thank you"));
+                        $error->add("unknown", __("<strong>ERROR</strong>: I'm sorry there was an unknown error, please try again and if it continues, please contact ".$this->support_email.".  Thank you"));
                         return $error;
                     }
                 }

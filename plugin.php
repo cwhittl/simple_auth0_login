@@ -4,6 +4,8 @@ require 'lib/Auth0Service.php';
 require 'lib/PasswordManagementOverride.php';
 require 'lib/AuthenticationOverride.php';
 require 'lib/RegistrationOverride.php';
+require 'lib/ProfileOverride.php';
+
 
 /*
 Plugin Name: SimpleAuth0Login
@@ -12,8 +14,6 @@ Author: cwhittl
 Version: 0.1
 */
 
-//TODO Need to check if user exists when user tries to reset password, if user doesn't exist and sign up is enabled can you send them to sign up?
-//TODO email and profile change?
 class SimpleAuth0Login
 {
     protected $auth0_service = null;
@@ -27,15 +27,13 @@ class SimpleAuth0Login
         add_action('admin_enqueue_scripts', array($this,"enqueue_scripts"));
         add_action('enqueue_scripts', array($this,"enqueue_scripts"));
 
-        add_action('login_footer', array($this,"init_shared_javascript"));
-        add_action('admin_footer', array($this,"init_shared_javascript"));
-        add_action('wp_footer', array($this,"init_shared_javascript"));
-
         add_action('admin_menu', array($this,'create_admin_menu'));
 
         new PasswordManagementOverride($this->auth0_service, esc_attr(get_option($this->login_logo_name)));
         new AuthenticationOverride($this->auth0_service);
         new RegistrationOverride($this->auth0_service);
+        new ProfileOverride($this->auth0_service);
+
         $this->fixLoginForms();
     }
 
@@ -43,14 +41,16 @@ class SimpleAuth0Login
     {
         wp_enqueue_script('simple-auth0-promise-polyfill',  plugins_url('includes/polyfills/promise.min.js', __FILE__));
         wp_enqueue_script('simple-auth0-fetch-polyfill',  plugins_url('includes/polyfills/fetch.js', __FILE__));
+        wp_enqueue_script('simple-auth0-login-modal',  plugins_url('includes/modal/modal.js', __FILE__));
+        wp_enqueue_style('simple-auth0-login-modal',  plugins_url('includes/modal/modal.css', __FILE__));
         wp_enqueue_script('simple-auth0-shared',  plugins_url('includes/SimpleAuth0LoginShared.js', __FILE__));
-    }
-
-    function init_shared_javascript()
-    {
-        ob_start();
-        include "lib/views/shared.php";
-        echo ob_get_clean();
+        $ajax_url = admin_url('admin-ajax.php');
+        $support_email = $this->auth0_service->support_email;
+        echo "<script>
+        document.addEventListener('DOMContentLoaded', function(event){
+          window.simpleAuth0LoginShared = new SimpleAuth0LoginShared('$ajax_url','$support_email');
+        });
+        </script>";
     }
 
     function fixLoginForms()
@@ -68,8 +68,8 @@ class SimpleAuth0Login
     }
     function create_admin_menu()
     {
-            add_menu_page('Simple Auth0 Login', 'Simple Auth0 Login', 'administrator', "simple_auth0_login",  array($this,'admin_settings_page'),  "dashicons-lock");
-            add_action('admin_init', array($this,'register_admin_settings'));
+        add_menu_page('Simple Auth0 Login', 'Simple Auth0 Login', 'administrator', "simple_auth0_login",  array($this,'admin_settings_page'),  "dashicons-lock");
+        add_action('admin_init', array($this,'register_admin_settings'));
     }
 
     function register_admin_settings()
@@ -78,8 +78,10 @@ class SimpleAuth0Login
         register_setting('simple-auth0-login-settings-group', $this->auth0_service->client_secret_name);
         register_setting('simple-auth0-login-settings-group', $this->auth0_service->connection_name);
         register_setting('simple-auth0-login-settings-group', $this->auth0_service->domain_name);
+        register_setting('simple-auth0-login-settings-group', $this->auth0_service->support_email_name);
 
         register_setting('simple-auth0-login-settings-group', $this->login_logo_name);
+
     }
 
     function admin_settings_page()
@@ -97,20 +99,24 @@ class SimpleAuth0Login
           <td><input type="text" name="<?php echo $this->login_logo_name; ?>" value="<?php echo esc_attr(get_option($this->login_logo_name)); ?>" /></td>
           </tr>
           <tr valign="top">
+          <th scope="row">Support Email</th>
+          <td><input required type="email" name="<?php echo $this->auth0_service->support_email_name; ?>" value="<?php echo esc_attr(get_option($this->auth0_service->support_email_name)); ?>" /></td>
+          </tr>
+          <tr valign="top">
           <th scope="row">Auth0 Domain</th>
-          <td><input type="text" name="<?php echo $this->auth0_service->domain_name; ?>" value="<?php echo esc_attr(get_option($this->auth0_service->domain_name)); ?>" /></td>
+          <td><input required type="text" name="<?php echo $this->auth0_service->domain_name; ?>" value="<?php echo esc_attr(get_option($this->auth0_service->domain_name)); ?>" /></td>
           </tr>
           <tr valign="top">
           <th scope="row">Auth0 Connection Name</th>
-          <td><input type="text" name="<?php echo $this->auth0_service->connection_name; ?>" value="<?php echo esc_attr(get_option($this->auth0_service->connection_name)); ?>" /></td>
+          <td><input required type="text" name="<?php echo $this->auth0_service->connection_name; ?>" value="<?php echo esc_attr(get_option($this->auth0_service->connection_name)); ?>" /></td>
           </tr>
           <tr valign="top">
           <th scope="row">Auth0 Client ID</th>
-          <td><input type="text" name="<?php echo $this->auth0_service->client_id_name; ?>" value="<?php echo esc_attr(get_option($this->auth0_service->client_id_name)); ?>" /></td>
+          <td><input required type="text" name="<?php echo $this->auth0_service->client_id_name; ?>" value="<?php echo esc_attr(get_option($this->auth0_service->client_id_name)); ?>" /></td>
           </tr>
           <tr valign="top">
           <th scope="row">Auth0 Client Secret</th>
-          <td><input type="password" name="<?php echo $this->auth0_service->client_secret_name; ?>" value="<?php echo esc_attr(get_option($this->auth0_service->client_secret_name)); ?>" /></td>
+          <td><input required type="password" name="<?php echo $this->auth0_service->client_secret_name; ?>" value="<?php echo esc_attr(get_option($this->auth0_service->client_secret_name)); ?>" /></td>
           </tr>
       </table>
         <?php submit_button(); ?>
