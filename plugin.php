@@ -40,7 +40,7 @@ class SimpleAuth0Login
     function enqueue_scripts()
     {
         wp_enqueue_script('simple-auth0-promise-polyfill',  plugins_url('includes/polyfills/promise.min.js', __FILE__));
-        wp_enqueue_script('simple-auth0-fetch-polyfill',  plugins_url('includes/polyfills/fetch.js', __FILE__));
+        wp_enqueue_script('simple-auth0-fetch-polyfill',  plugins_url('includes/polyfills/fetch.min.js', __FILE__));
         wp_enqueue_script('simple-auth0-login-modal',  plugins_url('includes/modal/modal.js', __FILE__));
         wp_enqueue_style('simple-auth0-login-modal',  plugins_url('includes/modal/modal.css', __FILE__));
         wp_enqueue_script('simple-auth0-shared',  plugins_url('includes/SimpleAuth0Login.js', __FILE__));
