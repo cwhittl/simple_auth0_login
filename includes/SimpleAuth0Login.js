@@ -77,8 +77,8 @@ class SimpleAuth0Login {
     if (!registerform) {
       return;
     }
-    var user_email = registerform.querySelector("#user_email");
-    var user_login = registerform.querySelector("#user_login");
+    var user_email = registerform.getElementById("user_email");
+    var user_login = registerform.getElementById("user_login");
     user_email.onkeyup = function(e) {
       user_login.value = e.target.value;
     }
