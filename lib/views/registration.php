@@ -6,6 +6,9 @@
 #registerform label[for="user_login"] {
   display: none;
 }
+#registerform input[type="email"] {
+  text-transform: lowercase;
+}
 </style>
 <p>
   <label for="reg_pass"><?php _e('Password', 'mydomain') ?><br />
