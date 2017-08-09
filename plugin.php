@@ -41,7 +41,7 @@ class SimpleAuth0Login
     {
         wp_enqueue_script('simple-auth0-promise-polyfill',  plugins_url('includes/polyfills/promise.min.js', __FILE__));
         wp_enqueue_script('simple-auth0-fetch-polyfill',  plugins_url('includes/polyfills/fetch.min.js', __FILE__));
-        wp_enqueue_script('simple-auth0-login-modal',  plugins_url('includes/modal/modal.js', __FILE__));
+        wp_enqueue_script('simple-auth0-login-modal',  plugins_url('includes/modal/modal.min.js', __FILE__));
         wp_enqueue_style('simple-auth0-login-modal',  plugins_url('includes/modal/modal.css', __FILE__));
         wp_enqueue_script('simple-auth0-shared',  plugins_url('includes/SimpleAuth0Login.js', __FILE__));
         $ajax_url = admin_url('admin-ajax.php');
@@ -86,44 +86,12 @@ class SimpleAuth0Login
 
     function admin_settings_page()
     {
-        ?>
-      <div class="wrap">
-        <h1>Auth0 Simple Login Settings</h1>
-
-        <form method="post" action="options.php">
-        <?php settings_fields('simple-auth0-login-settings-group'); ?>
-        <?php do_settings_sections('simple-auth0-login-settings-group'); ?>
-      <table class="form-table">
-          <tr valign="top">
-          <th scope="row">Login Logo URL</th>
-          <td><input type="text" name="<?php echo $this->login_logo_name; ?>" value="<?php echo esc_attr(get_option($this->login_logo_name)); ?>" /></td>
-          </tr>
-          <tr valign="top">
-          <th scope="row">Support Email</th>
-          <td><input required type="email" name="<?php echo $this->auth0_service->support_email_name; ?>" value="<?php echo esc_attr(get_option($this->auth0_service->support_email_name)); ?>" /></td>
-          </tr>
-          <tr valign="top">
-          <th scope="row">Auth0 Domain</th>
-          <td><input required type="text" name="<?php echo $this->auth0_service->domain_name; ?>" value="<?php echo esc_attr(get_option($this->auth0_service->domain_name)); ?>" /></td>
-          </tr>
-          <tr valign="top">
-          <th scope="row">Auth0 Connection Name</th>
-          <td><input required type="text" name="<?php echo $this->auth0_service->connection_name; ?>" value="<?php echo esc_attr(get_option($this->auth0_service->connection_name)); ?>" /></td>
-          </tr>
-          <tr valign="top">
-          <th scope="row">Auth0 Client ID</th>
-          <td><input required type="text" name="<?php echo $this->auth0_service->client_id_name; ?>" value="<?php echo esc_attr(get_option($this->auth0_service->client_id_name)); ?>" /></td>
-          </tr>
-          <tr valign="top">
-          <th scope="row">Auth0 Client Secret</th>
-          <td><input required type="password" name="<?php echo $this->auth0_service->client_secret_name; ?>" value="<?php echo esc_attr(get_option($this->auth0_service->client_secret_name)); ?>" /></td>
-          </tr>
-      </table>
-        <?php submit_button(); ?>
-      </form>
-        </div>
-    <?php }
-
+        $login_logo_name = $this->login_logo_name;
+        $auth0_service = $this->auth0_service;
+        ob_start();
+        include "lib/views/adminsettings.php";
+        echo ob_get_clean();
+    }
 }
 new SimpleAuth0Login();
 

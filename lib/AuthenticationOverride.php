@@ -10,7 +10,7 @@ class AuthenticationOverride
         $this->auth0_service = $auth0_service;
         add_action(
             'plugins_loaded', function () {
-                if(isset($_POST["wle"])) {
+                if(!isset($_POST["wle"])) {
                     remove_filter('authenticate', 'wp_authenticate_username_password', 20, 3);
                     remove_filter('authenticate', 'wp_authenticate_email_password', 20, 3);
                     add_filter(
@@ -25,6 +25,7 @@ class AuthenticationOverride
                 }
             }
         );
+        
         add_action(
             "login_form", function () {
                 if(isset($_GET["wle"])) {
