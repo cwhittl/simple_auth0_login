@@ -128,7 +128,7 @@ class Auth0Service
                         }
 
                         wp_update_user(array( 'ID' => $user_id, 'display_name' => $user_profile->nickname, "user_email" => $user_profile->email));
-
+                        global $wpdb;
                         update_user_meta($user_id, $wpdb->prefix.'auth0_id', ( isset($user_profile->user_id) ? $user_profile->user_id : $user_profile->sub ));
                         update_user_meta($user_id, $wpdb->prefix.'auth0_obj', json_encode($user_profile));
                         update_user_meta($user_id, $wpdb->prefix.'last_update', date('c'));
