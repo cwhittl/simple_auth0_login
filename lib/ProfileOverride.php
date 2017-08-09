@@ -15,9 +15,9 @@ class ProfileOverride
                 $show_password_fields = add_filter('show_password_fields', '__return_false');
             }, 10
         );
-        
+
         add_action(
-            'show_user_profile', function ( $user ) use ($support_email) {
+            'show_user_profile', function ( $user ) {
                 $email = $user->user_email;
                 ob_start();
                 include "views/profileadditions.php";

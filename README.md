@@ -9,13 +9,13 @@ This is a work in progress, it's in response to the needs that the official plug
   - Full password reset
   - Signup
   - Validated the action used in the original plugin works
+  - Move all JS to one main file instead of views.
+  - Add back door similar to other plugin wle query string
 
 - NOT IMPLEMENTED / UNTESTED
-  - Move all JS to one main file instead of views.
-  - Add back door similar to other plugin wple query string
-  - Update Auth0 email from profile
+  - Update Auth0 email from profile  -- Can't do currently
   - Store Token in Users Meta?
-  - Add Single SignOut
+  - Add Single SignOut?
 
 - NOT IMPLEMENTED / OUR REQUIREMENTS
   - Need to check if user exists when user tries to reset password, if user doesn't exist and sign up is enabled can you send them to sign up?

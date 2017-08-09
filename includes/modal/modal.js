@@ -4,9 +4,7 @@
   if(window.location.hash) {
       var hash = window.location.hash.substring(1); //Puts hash in variable, and removes the # character
       if(hash.indexOf("open_modal") > -1){
-        setTimeout(function(){
-          openModal(hash)
-        },300)
+        openModal(hash)
       }
   }
 
@@ -15,7 +13,8 @@
       var modalTrigger = document.getElementsByClassName('modal_trigger');
       /* Set onclick event handler for all trigger elements */
       for(var i = 0; i < modalTrigger.length; i++) {
-          modalTrigger[i].onclick = function() {
+          modalTrigger[i].onclick = function(e) {
+            e.preventDefault();
             openModal(this.getAttribute('href').split('#')[1]);
           }
       }
@@ -26,14 +25,16 @@
 
       /* Set onclick event handler for close buttons */
         for(var i = 0; i < closeButton.length; i++) {
-          closeButton[i].onclick = function() {
+          closeButton[i].onclick = function(e) {
+            e.preventDefault();
             closeModal(this.parentNode.parentNode);
           }
         }
 
       /* Set onclick event handler for modal overlay */
         for(var i = 0; i < closeOverlay.length; i++) {
-          closeOverlay[i].onclick = function() {
+          closeOverlay[i].onclick = function(e) {
+            e.preventDefault();
             closeModal(this.parentNode);
           }
         }
@@ -48,7 +49,7 @@
 
   function closeModal(modalWindow){
     if(modalWindow){
-        modalWindow.classList ? modalWindow.classList.remove('open') : modalWindow.className = modalWindow.className.replace(new RegExp('(^|\\b)' + 'open'.split(' ').join('|') + '(\\b|$)', 'gi'), ' ');
+      modalWindow.classList ? modalWindow.classList.remove('open') : modalWindow.className = modalWindow.className.replace(new RegExp('(^|\\b)' + 'open'.split(' ').join('|') + '(\\b|$)', 'gi'), ' ');
     }
   }
 

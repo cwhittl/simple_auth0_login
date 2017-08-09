@@ -43,12 +43,12 @@ class SimpleAuth0Login
         wp_enqueue_script('simple-auth0-fetch-polyfill',  plugins_url('includes/polyfills/fetch.js', __FILE__));
         wp_enqueue_script('simple-auth0-login-modal',  plugins_url('includes/modal/modal.js', __FILE__));
         wp_enqueue_style('simple-auth0-login-modal',  plugins_url('includes/modal/modal.css', __FILE__));
-        wp_enqueue_script('simple-auth0-shared',  plugins_url('includes/SimpleAuth0LoginShared.js', __FILE__));
+        wp_enqueue_script('simple-auth0-shared',  plugins_url('includes/SimpleAuth0Login.js', __FILE__));
         $ajax_url = admin_url('admin-ajax.php');
         $support_email = $this->auth0_service->support_email;
         echo "<script>
         document.addEventListener('DOMContentLoaded', function(event){
-          window.simpleAuth0LoginShared = new SimpleAuth0LoginShared('$ajax_url','$support_email');
+          new SimpleAuth0Login('$ajax_url','$support_email');
         });
         </script>";
     }

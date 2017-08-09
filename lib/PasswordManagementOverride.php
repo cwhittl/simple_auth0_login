@@ -8,7 +8,6 @@ class PasswordManagementOverride
     function __construct($auth0_service,$login_logo_url)
     {
         $this->auth0_service = $auth0_service;
-        $support_email = $this->auth0_service->support_email;
 
         add_action(
             'init', function () {
@@ -27,7 +26,7 @@ class PasswordManagementOverride
         );
 
         add_filter(
-            'login_footer', function () use ($login_logo_url, $support_email) {
+            'login_footer', function () use ($login_logo_url) {
                 ob_start();
                 include "views/lostpassword.php";
                 echo ob_get_clean();

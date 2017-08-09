@@ -11,18 +11,9 @@ class RegistrationOverride
         remove_action('register_new_user',   'wp_send_new_user_notifications');
         add_action(
             'register_form', function () {
-                $reg_pass1 = ( ! empty($_POST['reg_pass1']) ) ? trim($_POST['reg_pass1']) : '';
-                $reg_pass2 = ( ! empty($_POST['reg_pass2']) ) ? trim($_POST['reg_pass2']) : '';
-            ?>
-            <p>
-              <label for="reg_pass"><?php _e('Password', 'mydomain') ?><br />
-                <input type="password" name="reg_pass1" id="reg_pass1" class="input" value="<?php echo esc_attr(wp_unslash($reg_pass1)); ?>" />
-              </label>
-              <label for="reg_pass"><?php _e('Password Again', 'mydomain') ?><br />
-                <input type="password" name="reg_pass2" id="reg_pass2" class="input" value="<?php echo esc_attr(wp_unslash($reg_pass2)); ?>" />
-              </label>
-            </p>
-            <?php
+                ob_start();
+                include "views/registration.php";
+                echo ob_get_clean();
             }
         );
 
@@ -33,13 +24,6 @@ class RegistrationOverride
             }, 10, 3
         );
 
-        add_filter(
-            'login_footer', function () use ($login_logo_url) {
-                ob_start();
-                include "views/registration.php";
-                echo ob_get_clean();
-            }
-        );
 
         add_filter(
             'registration_errors', function ( $errors, $sanitized_user_login, $user_email ) {
