@@ -123,7 +123,7 @@ class Auth0Service
                     $user_profile = JWT::decode($result->id_token, $this->client_secret, array('HS256', 'RS256'));
                     if(!$user_profile->email_verified) {
                         $error = new WP_Error();
-                        $error->add("not_validation", __('<strong>ERROR</strong>: Check your inbox for an verfication email, once verfied you can login.'));
+                        $error->add("not_validation", __('<strong>ERROR</strong>: Check your inbox for an verfication email, once verified you can login.'));
                         return $error;
                     }
                     $is_new = false;
@@ -143,7 +143,7 @@ class Auth0Service
                     update_user_meta($user_id, $wpdb->prefix.'auth0_id', ( isset($user_profile->user_id) ? $user_profile->user_id : $user_profile->sub ));
                     update_user_meta($user_id, $wpdb->prefix.'auth0_obj', json_encode($user_profile));
                     update_user_meta($user_id, $wpdb->prefix.'last_update', date('c'));
-                    
+
                     if(!wp_check_password($password, $user->data->user_pass, $user_id)) {
                         wp_set_password($password, $user_id);
                     }

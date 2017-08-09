@@ -34,13 +34,27 @@ class RegistrationOverride
                 }else if (trim($_POST['reg_pass1']) !== trim($_POST['reg_pass2']) ) {
                     $errors->add('reg_pass_match_error', __('<strong>ERROR</strong>: You passwords must match.', 'mydomain'));
                 }else {
-                    $signed_up = $this->auth0_service->signup($user_email, $_POST['reg_pass']);
+                    $signed_up = $this->auth0_service->signup($user_email, $_POST['reg_pass1']);
                     if(!$signed_up === true) {
                         $errors->add('reg_signed_up_error', __('<strong>ERROR</strong>: There was an issue with your sign up.($signed_up)', 'mydomain'));
                     }
                 }
                 return $errors;
             }, 10, 3
+        );
+
+        add_filter(
+            'wp_login_errors', function ( $errors, $redirect_to ) {
+                if(isset($errors->errors['registered']) ) {
+                    $needle = __('Registration complete. Please check your email.');
+                    foreach( $errors->errors['registered'] as $index => $msg ) {
+                        if($msg === $needle ) {
+                            $errors->errors['registered'][$index] = 'Registration complete. Please check your email, this could take up to 30 minutes.';
+                        }
+                    }
+                }
+                return $errors;
+            }, 10, 2
         );
 
         add_action(

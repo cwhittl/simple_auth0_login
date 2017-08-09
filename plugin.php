@@ -39,10 +39,11 @@ class SimpleAuth0Login
 
     function enqueue_scripts()
     {
+        wp_enqueue_script('simple-auth0-getelementsbyclassname-polyfill',  plugins_url('includes/polyfills/getelementsbyclassname.min.js', __FILE__));
         wp_enqueue_script('simple-auth0-promise-polyfill',  plugins_url('includes/polyfills/promise.min.js', __FILE__));
         wp_enqueue_script('simple-auth0-fetch-polyfill',  plugins_url('includes/polyfills/fetch.min.js', __FILE__));
-        wp_enqueue_script('simple-auth0-login-modal',  plugins_url('includes/modal/modal.min.js', __FILE__));
         wp_enqueue_style('simple-auth0-login-modal',  plugins_url('includes/modal/modal.css', __FILE__));
+        wp_enqueue_script('simple-auth0-login-modal',  plugins_url('includes/modal/modal.js', __FILE__));
         wp_enqueue_script('simple-auth0-shared',  plugins_url('includes/SimpleAuth0Login.js', __FILE__));
         $ajax_url = admin_url('admin-ajax.php');
         $support_email = $this->auth0_service->support_email;

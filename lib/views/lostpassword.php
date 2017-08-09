@@ -28,7 +28,7 @@ if($login_logo_url) {
     <form action="#">
       <h3>Need a new password?</h3>
       <h4>Please enter or verify your email and hit send.</h4>
-      <input required type="email" width="100%" class="input" name="possible_email" id="possible_email" placeholder="Enter your Email here"/>
+      <input required type="email" width="100%" class="input" name="possible_email" id="possible_email" placeholder="Enter your email address"/>
       <input type="submit" id="send_password" class="button button-primary button-large" value="Send new password"/>
     </form>
     <button class="modal__close modal_close">&#10005;</button>
