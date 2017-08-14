@@ -27,10 +27,12 @@ class ProfileOverride
 
         add_action(
             'user_profile_update_errors', function ( $errors, $update, $user ) use ($support_email) {
-                $old = get_user_by('id', $user->ID);
-                if($user->user_email != $old->user_email) {
-                    $user->user_email = $old->user_email;
-                    $errors->add('cannot_change_email', __('<strong>ERROR</strong>: Unfortunately you cannot currently change your email address, please contact '.$support_email.' and they can change it for you.', 'mydomain'));
+                if (!in_array('administrator', (array) $user->roles) ) {
+                    $old = get_user_by('id', $user->ID);
+                    if($user->user_email != $old->user_email) {
+                        $user->user_email = $old->user_email;
+                        $errors->add('cannot_change_email', __('<strong>ERROR</strong>: Unfortunately you cannot currently change your email address, please contact '.$support_email.' and they can change it for you.', 'mydomain'));
+                    }
                 }
             }, 10, 3
         );

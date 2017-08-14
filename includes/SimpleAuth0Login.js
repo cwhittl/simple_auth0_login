@@ -69,10 +69,10 @@ var SimpleAuth0Login = Class({
     var _this = this;
     var password_reset = document.getElementById("password_reset");
     var email = document.getElementById("email");
-    if (!email) {
+    if (!email || !password_reset) {
       return;
     }
-    email.disabled = true;
+    email.readOnly = true;
 
     password_reset.addEventListener('click', function(e) {
       e.preventDefault();
